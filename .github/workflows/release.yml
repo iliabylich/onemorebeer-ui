@@ -1,0 +1,45 @@
+name: release
+
+on:
+  push:
+    branches: [ master ]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-musl
+
+      - uses: extractions/setup-just@v2
+
+      - run: sudo apt update && sudo apt install musl musl-dev
+      - run: sudo ln -s /bin/x86_64-linux-musl-gcc /bin/musl-gcc
+
+      - name: install cargo-deb
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deb
+
+      - run: just build-deb
+
+      - name: release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          removeArtifacts: true
+          tag: latest
+          artifacts: target/x86_64-unknown-linux-musl/debian/*.deb
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: iliabylich/ppa@notify
+        with:
+          token: ${{ secrets.PPA_TOKEN }}

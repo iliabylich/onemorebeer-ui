@@ -1,0 +1,12 @@
+[Unit]
+AssertPathExists=/usr/bin/onemorebeer-ui
+
+[Service]
+WorkingDirectory=~
+ExecStart=/usr/bin/onemorebeer-ui
+Restart=always
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

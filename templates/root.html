@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Beers</title>
+    <link rel="stylesheet" href="//cdn.datatables.net/2.1.3/css/dataTables.dataTables.min.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+    <script type="text/javascript" src="//code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="//cdn.datatables.net/2.1.3/js/dataTables.min.js"></script>
+    <script type="text/javascript" src="//code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+</head>
+
+<body>
+    <div id="tabs">
+        <ul>
+            <li><a href="#tabs-1">Beers</a></li>
+            <li><a href="#tabs-2">Ciders</a></li>
+            <li><a href="#tabs-3">Meads</a></li>
+        </ul>
+
+        <div id="tabs-1">
+            <table id="beers"></table>
+        </div>
+        <div id="tabs-2">
+            <table id="ciders"></table>
+        </div>
+        <div id="tabs-3">
+            <table id="meads"></table>
+        </div>
+    </div>
+
+    <script type="module">
+        function makeTableFromData(selector, data) {
+            $(selector).DataTable({
+                data: data,
+                columns: [
+                    { data: "manufacturer", title: "Brewery" },
+                    {
+                        data: "name",
+                        title: "Beer name",
+                        render(data, type, row) {
+                            return `<a href="https://onemorebeer.pl${row.url}">${data}</a>`;
+                        }
+                    },
+                    {
+                        data: "abv",
+                        title: "ABV (%)",
+                        render(data) { return data ? data.toFixed(2) : null }
+                    },
+                    { data: "overall_score", title: "RB overall score" },
+                    { data: "style_score", title: "RB style score" },
+                ],
+                order: [[1, "asc"]],
+                pageLength: 50
+            });
+        }
+
+        (async function main() {
+            $("#tabs").tabs();
+
+            const res = await fetch("/beers.json");
+            const { beers, ciders, meads } = await res.json();
+
+            makeTableFromData("#beers", beers);
+            makeTableFromData("#ciders", ciders);
+            makeTableFromData("#meads", meads);
+        })();
+    </script>
+</body>
+
+</html>
