@@ -12,7 +12,7 @@ impl Repository {
         category: Category,
     ) -> Result<Vec<Beer>> {
         let last_page = Client::get_pages_count(client, category).await?;
-        let pages = (1..=last_page).into_iter().collect::<Vec<_>>();
+        let pages = (1..=last_page).collect::<Vec<_>>();
 
         async fn get_concurrently(
             pages: &[usize],

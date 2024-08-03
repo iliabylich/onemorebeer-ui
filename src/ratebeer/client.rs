@@ -4,10 +4,10 @@ use crate::{beer::Beer, cache::Cache};
 
 pub(crate) struct Client;
 
-const CACHE_NS: &'static str = "ratebeer";
+const CACHE_NS: &str = "ratebeer";
 
 fn cache_key(beer: &Beer) -> String {
-    beer.url.strip_prefix("/").unwrap().to_string()
+    beer.url.strip_prefix('/').unwrap().to_string()
 }
 
 impl Client {

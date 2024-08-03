@@ -9,10 +9,10 @@ pub(crate) struct PageOptions {
     pub(crate) category: Category,
 }
 
-const CACHE_KEY: &'static str = "onemorebeer";
+const CACHE_KEY: &str = "onemorebeer";
 
 impl PageOptions {
-    fn to_url(&self) -> String {
+    fn to_url(self) -> String {
         const BASE_URL: &str = "https://api-prod.onecommerce.shop/api/v1/catalog/app/auth-optional/products/search/items";
         const SORT: &str = "sortCriteria=RANK_DESC";
         const FILTER: &str = "filtersQuery=availability:true";
@@ -25,7 +25,7 @@ impl PageOptions {
         )
     }
 
-    fn to_cache_key(&self) -> String {
+    fn to_cache_key(self) -> String {
         format!("{}-{}", self.category.to_cache_key_part(), self.page)
     }
 }

@@ -8,8 +8,8 @@ pub(crate) struct Database {
     pub(crate) meads: Vec<Beer>,
 }
 
-const CACHE_NS: &'static str = "top";
-const CACHE_KEY: &'static str = "database.json";
+const CACHE_NS: &str = "top";
+const CACHE_KEY: &str = "database.json";
 
 impl Database {
     pub(crate) async fn write(&self) -> Result<()> {

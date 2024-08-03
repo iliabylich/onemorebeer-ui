@@ -9,7 +9,7 @@ pub(crate) struct Repository;
 impl Repository {
     pub(crate) async fn load_scores(client: &reqwest::Client, beers: &mut [Beer]) {
         async fn try_fill_one(client: &reqwest::Client, beer: &mut Beer) -> Result<()> {
-            let html = Client::search_one_cached(client, &beer).await?;
+            let html = Client::search_one_cached(client, beer).await?;
             static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"data-rating="(.+)""#).unwrap());
 
             let rating = RE

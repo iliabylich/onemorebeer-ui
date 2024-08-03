@@ -6,7 +6,7 @@ pub(crate) enum Category {
 }
 
 impl Category {
-    pub(crate) fn to_param(&self) -> &'static str {
+    pub(crate) fn to_param(self) -> &'static str {
         match self {
             Self::Beer => "Piwa",
             Self::Mead => "Miody_Pitne",
@@ -14,7 +14,7 @@ impl Category {
         }
     }
 
-    pub(crate) fn to_cache_key_part(&self) -> &'static str {
+    pub(crate) fn to_cache_key_part(self) -> &'static str {
         match self {
             Self::Beer => "beer",
             Self::Mead => "mead",

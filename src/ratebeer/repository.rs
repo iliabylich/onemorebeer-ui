@@ -10,7 +10,7 @@ pub(crate) struct Repository;
 impl Repository {
     pub(crate) async fn load_scores(client: &reqwest::Client, beers: &mut [Beer]) {
         async fn try_fill_one(client: &reqwest::Client, beer: &mut Beer) -> Result<()> {
-            let response = Client::search_one_cached(client, &beer).await?;
+            let response = Client::search_one_cached(client, beer).await?;
             let response = serde_json::from_str::<'_, serde_json::Value>(&response)
                 .context("Ratebeer returned invalid JSON")?;
 
