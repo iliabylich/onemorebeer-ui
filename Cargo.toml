@@ -27,13 +27,13 @@ lto = true
 [package.metadata.deb]
 assets = [
     [
-        "target/release/onermorebeer-ui",
-        "usr/bin/onermorebeer-ui",
+        "target/release/onemorebeer-ui",
+        "usr/bin/onemorebeer-ui",
         "755",
     ],
     [
-        "debian/onermorebeer-ui.service",
-        "lib/systemd/system/onermorebeer-ui.service",
+        "debian/onemorebeer-ui.service",
+        "lib/systemd/system/onemorebeer-ui.service",
         "644",
     ],
 ]
