@@ -50,8 +50,13 @@
                         title: "ABV (%)",
                         render(data) { return data ? data.toFixed(2) : null }
                     },
-                    { data: "overall_score", title: "RB overall score" },
-                    { data: "style_score", title: "RB style score" },
+                    { data: "overall_score", title: "Ratebeer (overall)" },
+                    { data: "style_score", title: "Ratebeer (style)" },
+                    {
+                        data: "untappd_score",
+                        title: "Untappd",
+                        render(data) { return data ? data.toFixed(2) : null }
+                    },
                 ],
                 order: [[1, "asc"]],
                 pageLength: 50

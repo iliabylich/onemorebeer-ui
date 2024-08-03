@@ -2,6 +2,7 @@ use crate::{
     beer::Database,
     onemorebeer::{Category, Repository as OneMoreBeer},
     ratebeer::Repository as Ratebeer,
+    untappd::Repository as Untappd,
 };
 use anyhow::Result;
 
@@ -18,6 +19,10 @@ impl Sync {
         Ratebeer::load_scores(&client, &mut beers).await;
         Ratebeer::load_scores(&client, &mut ciders).await;
         Ratebeer::load_scores(&client, &mut meads).await;
+
+        Untappd::load_scores(&client, &mut beers).await;
+        Untappd::load_scores(&client, &mut ciders).await;
+        Untappd::load_scores(&client, &mut meads).await;
 
         let db = Database {
             beers,

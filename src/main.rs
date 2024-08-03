@@ -6,6 +6,7 @@ mod onemorebeer;
 mod ratebeer;
 mod sync;
 mod templates;
+mod untappd;
 mod web;
 
 #[tokio::main]
