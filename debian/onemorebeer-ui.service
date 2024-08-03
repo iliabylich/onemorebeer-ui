@@ -3,7 +3,7 @@ AssertPathExists=/usr/bin/onemorebeer-ui
 
 [Service]
 WorkingDirectory=~
-ExecStart=/usr/bin/onemorebeer-ui
+ExecStart=/usr/bin/onemorebeer-ui --web
 Restart=always
 PrivateTmp=true
 NoNewPrivileges=true
