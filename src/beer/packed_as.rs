@@ -13,6 +13,7 @@ impl TryFrom<String> for PackedAs {
             "puszka" => Ok(Self::Can),
             "keg" => Err(()),
             "beerbox" => Err(()),
+            "zestaw" => Err(()),
             "0" => Err(()),
             _ => {
                 panic!("Unknwon package type: {s}")
