@@ -39,7 +39,3 @@ jobs:
           tag: latest
           artifacts: target/x86_64-unknown-linux-musl/debian/*.deb
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: iliabylich/ppa@notify
-        with:
-          token: ${{ secrets.PPA_TOKEN }}
