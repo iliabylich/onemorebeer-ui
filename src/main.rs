@@ -3,7 +3,6 @@ mod cache;
 mod config;
 mod mode;
 mod onemorebeer;
-mod ratebeer;
 mod sync;
 mod templates;
 mod untappd;

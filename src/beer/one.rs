@@ -10,8 +10,6 @@ pub(crate) struct Beer {
     pub(crate) url: String,
     pub(crate) manufacturer: String,
     pub(crate) packed_as: PackedAs,
-    pub(crate) style_score: Option<u8>,
-    pub(crate) overall_score: Option<u8>,
     pub(crate) untappd_score: Option<f32>,
 }
 
@@ -58,8 +56,6 @@ impl BeerBuilder {
             url: self.url.unwrap(),
             manufacturer: self.manufacturer.unwrap(),
             packed_as: self.packed_as.unwrap(),
-            style_score: None,
-            overall_score: None,
             untappd_score: None,
         }
     }
