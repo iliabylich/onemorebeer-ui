@@ -23,24 +23,3 @@ lexopt = "0.3"
 [profile.release]
 opt-level = "z"
 lto = true
-
-[package.metadata.deb]
-assets = [
-    [
-        "target/release/onemorebeer-ui",
-        "usr/bin/onemorebeer-ui",
-        "755",
-    ],
-    [
-        "debian/onemorebeer-ui.service",
-        "lib/systemd/system/onemorebeer-ui.service",
-        "644",
-    ],
-]
-copyright = "2023, Ilya Bylich."
-depends = "$auto, systemd"
-extended-description = "A simple frontend for a beer shop."
-maintainer = "onemorebeer-ui developer <ibylich@gmail.com>"
-maintainer-scripts = "debian/scripts"
-priority = "optional"
-section = "admin"
