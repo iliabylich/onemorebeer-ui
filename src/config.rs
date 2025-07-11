@@ -28,7 +28,7 @@ impl Config {
 
         let json = std::fs::read_to_string(CONFIG_PATH).context("Failed to open config file")?;
         let config: Config = serde_json::from_str(&json).context("Failed to parse config file")?;
-        println!("Running with config {:?}", config);
+        log::info!("Running with config {:?}", config);
 
         CONFIG.set(config).context("Config has already been loaded")
     }

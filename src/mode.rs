@@ -3,39 +3,29 @@ pub(crate) enum Mode {
     Web,
 }
 
-pub(crate) fn parse_mode() -> Result<Mode, lexopt::Error> {
-    use lexopt::prelude::*;
+fn print_help_and_exit() -> ! {
+    log::error!("Usage: onemorebeer-ui --sync|--web");
+    std::process::exit(1)
+}
 
-    let mut sync = false;
-    let mut web = false;
-    let mut parser = lexopt::Parser::from_env();
-    while let Some(arg) = parser.next()? {
-        match arg {
-            Long("sync") => sync = true,
-            Long("web") => web = true,
-            Long("help") => {
-                println!("Usage: onemorebeer-ui --sync|--web");
-                std::process::exit(0);
-            }
-            _ => return Err(arg.unexpected()),
-        }
+pub(crate) fn parse_mode() -> Mode {
+    let mut args = std::env::args().skip(1);
+
+    let mode;
+
+    let Some(arg) = args.next() else {
+        print_help_and_exit();
+    };
+
+    match arg.as_str() {
+        "--sync" => mode = Mode::Sync,
+        "--web" => mode = Mode::Web,
+        _ => print_help_and_exit(),
     }
 
-    if sync && web {
-        return Err(lexopt::Error::from(
-            "Both --sync and --web provided, they are mutually exclusive",
-        ));
+    if args.next().is_some() {
+        print_help_and_exit();
     }
 
-    if !sync && !web {
-        return Err(lexopt::Error::from(
-            "At least one of --sync or --web is required",
-        ));
-    }
-
-    if sync {
-        Ok(Mode::Sync)
-    } else {
-        Ok(Mode::Web)
-    }
+    mode
 }

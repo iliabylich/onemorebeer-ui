@@ -1,13 +1,12 @@
+use crate::{beer::Database, config::Config, templates::RootTemplate};
 use anyhow::{Context, Result};
 use askama::Template;
 use axum::{
+    Json, Router,
     response::{Html, IntoResponse},
     routing::get,
-    Json, Router,
 };
 use tokio::net::TcpListener;
-
-use crate::{beer::Database, config::Config, templates::RootTemplate};
 
 pub(crate) struct Web;
 
@@ -18,7 +17,7 @@ impl Web {
             .route("/beers.json", get(beers));
 
         let port = Config::global()?.listen_on;
-        let listener = TcpListener::bind(("0.0.0.0", port))
+        let listener = TcpListener::bind(("127.0.0.1", port))
             .await
             .context("failed to bind")?;
         println!(
