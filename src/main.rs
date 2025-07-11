@@ -1,6 +1,6 @@
 mod beer;
-mod cache;
 mod config;
+mod local_cache_middleware;
 mod mode;
 mod onemorebeer;
 mod sync;

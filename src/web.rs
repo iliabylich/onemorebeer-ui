@@ -45,8 +45,10 @@ async fn root() -> impl IntoResponse {
 
 async fn beers() -> impl IntoResponse {
     match Database::read().await {
-        Ok(Some(db)) => Json(serde_json::to_value(db).unwrap()),
-        Ok(None) => Json(serde_json::json!({ "error": "No data" })),
-        Err(err) => Json(serde_json::json!({ "error": format!("{:?}", err) })),
+        Ok(db) => Json(serde_json::to_value(db).unwrap()),
+        Err(err) => {
+            log::error!("{err:?}");
+            Json(serde_json::json!({ "error": "internal server error" }))
+        }
     }
 }

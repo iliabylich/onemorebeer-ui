@@ -1,23 +1,25 @@
-use std::time::Duration;
-
-use anyhow::Result;
-use once_cell::sync::Lazy;
-use regex::Regex;
-
 use crate::{
     beer::Beer,
     untappd::{Client, client::ValueOrRetryAfter},
 };
+use anyhow::Result;
+use once_cell::sync::Lazy;
+use regex::Regex;
+use reqwest_middleware::ClientWithMiddleware;
+use std::time::Duration;
 
 pub(crate) struct Repository;
 
 impl Repository {
-    pub(crate) async fn load_scores(client: &reqwest::Client, beers: &mut [Beer]) -> Result<()> {
+    pub(crate) async fn load_scores(
+        client: &ClientWithMiddleware,
+        beers: &mut [Beer],
+    ) -> Result<()> {
         async fn try_fill_one(
-            client: &reqwest::Client,
+            client: &ClientWithMiddleware,
             beer: &mut Beer,
         ) -> Result<ValueOrRetryAfter<()>> {
-            let html = match Client::search_one_cached(client, beer).await? {
+            let html = match Client::search_one(client, beer).await? {
                 ValueOrRetryAfter::Value(html) => html,
                 ValueOrRetryAfter::RetryAfter(retry_after) => {
                     return Ok(ValueOrRetryAfter::RetryAfter(retry_after));
@@ -37,7 +39,7 @@ impl Repository {
         }
 
         async fn get_concurrently(
-            client: &reqwest::Client,
+            client: &ClientWithMiddleware,
             beers: &mut [Beer],
         ) -> Result<ValueOrRetryAfter<()>> {
             let max_retry = beers

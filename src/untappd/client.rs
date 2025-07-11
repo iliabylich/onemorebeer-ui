@@ -1,10 +1,8 @@
+use crate::beer::Beer;
 use anyhow::{Context as _, Result};
-
-use crate::{beer::Beer, cache::Cache};
+use reqwest_middleware::ClientWithMiddleware;
 
 pub(crate) struct Client;
-
-const CACHE_NS: &str = "untappd";
 
 fn cache_key(beer: &Beer) -> String {
     beer.url.strip_prefix('/').unwrap().to_string()
@@ -16,13 +14,14 @@ pub(crate) enum ValueOrRetryAfter<T> {
 }
 
 impl Client {
-    async fn search_one(
-        client: &reqwest::Client,
-        beer_name: &str,
+    pub(crate) async fn search_one(
+        client: &ClientWithMiddleware,
+        beer: &Beer,
     ) -> Result<ValueOrRetryAfter<String>> {
         let res = client
             .get("https://untappd.com/search")
-            .query(&[("q", beer_name), ("type", "beer"), ("sort", "all")])
+            .header("local-cache-key", cache_key(beer))
+            .query(&[("q", beer.name.as_str()), ("type", "beer"), ("sort", "all")])
             .send()
             .await?;
 
@@ -43,24 +42,5 @@ impl Client {
         let html = res.text().await?;
 
         Ok(ValueOrRetryAfter::Value(html))
-    }
-
-    pub(crate) async fn search_one_cached(
-        client: &reqwest::Client,
-        beer: &Beer,
-    ) -> Result<ValueOrRetryAfter<String>> {
-        let cache_key = cache_key(beer);
-
-        if let Some(html) = Cache::read(CACHE_NS, &cache_key).await {
-            Ok(ValueOrRetryAfter::Value(html))
-        } else {
-            match Self::search_one(client, &beer.name).await? {
-                ValueOrRetryAfter::Value(html) => {
-                    Cache::write(CACHE_NS, &cache_key, &html).await?;
-                    Ok(ValueOrRetryAfter::Value(html))
-                }
-                retry_after @ ValueOrRetryAfter::RetryAfter(_) => Ok(retry_after),
-            }
-        }
     }
 }

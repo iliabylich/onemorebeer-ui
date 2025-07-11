@@ -3,12 +3,13 @@ use crate::{
     onemorebeer::{Category, Client, PageOptions},
 };
 use anyhow::{Context, Result};
+use reqwest_middleware::ClientWithMiddleware;
 
 pub(crate) struct Repository;
 
 impl Repository {
     pub(crate) async fn load_category(
-        client: &reqwest::Client,
+        client: &ClientWithMiddleware,
         category: Category,
     ) -> Result<Vec<Beer>> {
         let last_page = Client::get_pages_count(client, category).await?;
@@ -16,13 +17,13 @@ impl Repository {
 
         async fn get_concurrently(
             pages: &[usize],
-            client: &reqwest::Client,
+            client: &ClientWithMiddleware,
             category: Category,
         ) -> Result<Vec<String>> {
             pages
                 .iter()
                 .map(|page| {
-                    Client::load_page_cached(
+                    Client::load_page(
                         client,
                         PageOptions {
                             page: *page,

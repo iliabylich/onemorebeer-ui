@@ -1,5 +1,6 @@
-use crate::{cache::Cache, onemorebeer::Category};
+use crate::onemorebeer::Category;
 use anyhow::{Context, Result};
+use reqwest_middleware::ClientWithMiddleware;
 
 pub(crate) struct Client;
 
@@ -8,8 +9,6 @@ pub(crate) struct PageOptions {
     pub(crate) page: usize,
     pub(crate) category: Category,
 }
-
-const CACHE_KEY: &str = "onemorebeer";
 
 impl PageOptions {
     fn to_url(self) -> String {
@@ -31,11 +30,16 @@ impl PageOptions {
 }
 
 impl Client {
-    async fn load_page(client: &reqwest::Client, options: PageOptions) -> Result<String> {
+    pub(crate) async fn load_page(
+        client: &ClientWithMiddleware,
+        options: PageOptions,
+    ) -> Result<String> {
+        let cache_key = options.to_cache_key();
         let url = options.to_url();
         client
             .get(url)
             .header("One-Tenant", "pinta")
+            .header("local-cache-key", cache_key)
             .send()
             .await
             .context("failed to download page")?
@@ -44,21 +48,11 @@ impl Client {
             .context("failed to extract text from the response")
     }
 
-    pub(crate) async fn load_page_cached(
-        client: &reqwest::Client,
-        options: PageOptions,
-    ) -> Result<String> {
-        Cache::fetch(CACHE_KEY, options.to_cache_key(), || {
-            Self::load_page(client, options)
-        })
-        .await
-    }
-
     pub(crate) async fn get_pages_count(
-        client: &reqwest::Client,
+        client: &ClientWithMiddleware,
         category: Category,
     ) -> Result<usize> {
-        let body = Self::load_page_cached(client, PageOptions { page: 1, category }).await?;
+        let body = Self::load_page(client, PageOptions { page: 1, category }).await?;
 
         #[derive(serde::Deserialize)]
         #[serde(rename_all = "camelCase")]

@@ -1,29 +1,30 @@
-use crate::{beer::Beer, cache::Cache};
-use anyhow::Result;
+use crate::{beer::Beer, config::Config};
+use anyhow::{Context as _, Result};
+use serde::{Deserialize, Serialize};
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub(crate) struct Database {
     pub(crate) beers: Vec<Beer>,
     pub(crate) ciders: Vec<Beer>,
     pub(crate) meads: Vec<Beer>,
 }
 
-const CACHE_NS: &str = "top";
-const CACHE_KEY: &str = "database.json";
-
 impl Database {
     pub(crate) async fn write(&self) -> Result<()> {
-        let json = serde_json::to_string(&self)?;
-        Cache::write(CACHE_NS, CACHE_KEY, json).await?;
-
-        Ok(())
+        let contents = serde_json::to_string(&self)?;
+        tokio::fs::write(Self::path(), contents)
+            .await
+            .context("failed to write database.json")
     }
 
-    pub(crate) async fn read() -> Result<Option<Self>> {
-        if let Some(json) = Cache::read(CACHE_NS, CACHE_KEY).await {
-            Ok(Some(serde_json::from_str(&json)?))
-        } else {
-            Ok(None)
-        }
+    pub(crate) async fn read() -> Result<Self> {
+        let contents = tokio::fs::read_to_string(Self::path())
+            .await
+            .context("failed to read database.json")?;
+        serde_json::from_str(&contents).context("failed to parse database.json")
+    }
+
+    fn path() -> String {
+        format!("{}/{}", Config::global().cache_dir, "database.json")
     }
 }
