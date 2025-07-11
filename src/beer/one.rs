@@ -1,4 +1,5 @@
 use crate::beer::PackedAs;
+use anyhow::{Context as _, Result};
 use once_cell::sync::Lazy;
 use regex::Regex;
 
@@ -48,16 +49,16 @@ impl BeerBuilder {
         self.packed_as = Some(packed_as);
         self
     }
-    pub(crate) fn build(self) -> Beer {
-        Beer {
-            name: self.name.unwrap(),
-            style: self.style.unwrap(),
+    pub(crate) fn build(self) -> Result<Beer> {
+        Ok(Beer {
+            name: self.name.context("no name given")?,
+            style: self.style.context("no style given")?,
             abv: self.abv,
-            url: self.url.unwrap(),
-            manufacturer: self.manufacturer.unwrap(),
-            packed_as: self.packed_as.unwrap(),
+            url: self.url.context("no url given")?,
+            manufacturer: self.manufacturer.context("no manufacturer given")?,
+            packed_as: self.packed_as.context("no packed_as given")?,
             untappd_score: None,
-        }
+        })
     }
 }
 
@@ -74,17 +75,19 @@ fn clean_name(mut name: String) -> String {
         .replace("PUSZKA", "")
         .replace("0%", "");
 
-    static VOL_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\d+([,.]\d+)? L").unwrap());
+    static VOL_RE: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"\d+([,.]\d+)? L").expect("invalid VOL_RE regex"));
     name = VOL_RE.replace_all(&name, "").to_string();
 
     if let Some((l, _)) = name.split_once("PROMOCJA") {
         name = l.trim().to_string();
     }
 
-    static GRAVITY_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\d+([,.]\d+)?°").unwrap());
+    static GRAVITY_RE: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"\d+([,.]\d+)?°").expect("invalid GRAVITY_RE regex"));
     name = GRAVITY_RE.replace_all(&name, "").to_string();
 
-    static SP_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s{2,}").unwrap());
+    static SP_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s{2,}").expect("invalid SP_RE regex"));
     name = SP_RE.replace_all(&name, " ").to_string();
 
     name.trim().to_string()

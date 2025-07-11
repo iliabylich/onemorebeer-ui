@@ -1,24 +1,19 @@
+use anyhow::{Result, bail};
+
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub(crate) enum PackedAs {
     Bottle,
     Can,
 }
 
-impl TryFrom<String> for PackedAs {
-    type Error = ();
+impl TryFrom<&str> for PackedAs {
+    type Error = anyhow::Error;
 
-    fn try_from(s: String) -> Result<Self, Self::Error> {
-        match &s[..] {
+    fn try_from(s: &str) -> Result<Self> {
+        match s {
             "butelka" => Ok(Self::Bottle),
             "puszka" => Ok(Self::Can),
-            "keg" => Err(()),
-            "beerbox" => Err(()),
-            "zestaw" => Err(()),
-            "0" => Err(()),
-            _ => {
-                log::error!("Unknown package type: {s}");
-                Err(())
-            }
+            other => bail!("unsupported PackedAs variant {other:?}"),
         }
     }
 }

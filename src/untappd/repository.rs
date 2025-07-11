@@ -25,9 +25,10 @@ impl Repository {
                     return Ok(ValueOrRetryAfter::RetryAfter(retry_after));
                 }
             };
-            static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r#"data-rating="(.+)""#).unwrap());
+            static RATING_RE: Lazy<Regex> =
+                Lazy::new(|| Regex::new(r#"data-rating="(.+)""#).expect("invalid RATING_RE regex"));
 
-            let rating = RE
+            let rating = RATING_RE
                 .captures_iter(&html)
                 .filter_map(|m| m.get(1))
                 .next()

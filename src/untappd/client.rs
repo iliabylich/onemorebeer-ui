@@ -4,8 +4,12 @@ use reqwest_middleware::ClientWithMiddleware;
 
 pub(crate) struct Client;
 
-fn cache_key(beer: &Beer) -> String {
-    beer.url.strip_prefix('/').unwrap().to_string()
+fn cache_key(beer: &Beer) -> Result<String> {
+    Ok(beer
+        .url
+        .strip_prefix('/')
+        .with_context(|| format!("no / prefix in beer url in {:?}", beer.url))?
+        .to_string())
 }
 
 pub(crate) enum ValueOrRetryAfter<T> {
@@ -20,7 +24,7 @@ impl Client {
     ) -> Result<ValueOrRetryAfter<String>> {
         let res = client
             .get("https://untappd.com/search")
-            .header("local-cache-key", cache_key(beer))
+            .header("local-cache-key", cache_key(beer)?)
             .query(&[("q", beer.name.as_str()), ("type", "beer"), ("sort", "all")])
             .send()
             .await?;

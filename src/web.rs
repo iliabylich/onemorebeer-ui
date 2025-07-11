@@ -32,23 +32,29 @@ impl Web {
 }
 
 async fn root() -> impl IntoResponse {
-    if cfg!(debug_assertions) {
-        Html(
-            tokio::fs::read_to_string("templates/root.html")
-                .await
-                .unwrap(),
-        )
+    let rendered = if cfg!(debug_assertions) {
+        tokio::fs::read_to_string("templates/root.html")
+            .await
+            .context("failed to read template from disk")
     } else {
-        Html(RootTemplate {}.render().unwrap())
-    }
+        RootTemplate {}
+            .render()
+            .context("failed to render static template")
+    };
+
+    Html(rendered.unwrap_or_else(|err| {
+        log::error!("{err:?}");
+        format!("internal server error")
+    }))
 }
 
 async fn beers() -> impl IntoResponse {
-    match Database::read().await {
-        Ok(db) => Json(serde_json::to_value(db).unwrap()),
-        Err(err) => {
+    let json = Database::read()
+        .await
+        .and_then(|db| serde_json::to_value(db).context("failed to serialize DB to json"))
+        .unwrap_or_else(|err| {
             log::error!("{err:?}");
-            Json(serde_json::json!({ "error": "internal server error" }))
-        }
-    }
+            serde_json::json!({ "error": "internal server error" })
+        });
+    Json(json)
 }

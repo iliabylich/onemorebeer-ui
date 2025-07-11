@@ -49,8 +49,9 @@ impl Repository {
             for raw in get_concurrently(chunk, client, category).await? {
                 let page: Page = serde_json::from_str(&raw).context("invalid json")?;
                 for item in page.items {
-                    if let Ok(beer) = Beer::try_from(item) {
-                        beers.push(beer);
+                    match Beer::try_from(item) {
+                        Ok(beer) => beers.push(beer),
+                        Err(err) => log::error!("{err:?}"),
                     }
                 }
             }
@@ -78,9 +79,10 @@ impl Item {
     fn abv(&self) -> Option<f32> {
         self.attributes
             .iter()
-            .find(|a| a.name_code == "moc")
-            .and_then(|a| a.value_code.parse::<usize>().ok())
-            .map(|abv| abv as f32 / 10.0)
+            .find(|attr| attr.name_code == "moc")
+            .map(|attr| attr.value_code.as_str())
+            .and_then(|value| value.strip_suffix("%"))
+            .and_then(|v| v.parse::<f32>().ok())
     }
 
     fn style(&self) -> String {
@@ -91,28 +93,29 @@ impl Item {
             .unwrap_or_else(|| String::from("unknown"))
     }
 
-    fn packed_as(&self) -> Result<PackedAs, ()> {
-        self.attributes
+    fn packed_as(&self) -> Result<PackedAs> {
+        let attr = self
+            .attributes
             .iter()
-            .find(|a| a.name_code == "rodzaj_opakowania")
-            .map(|a| a.value_code.clone())
-            .and_then(|s| PackedAs::try_from(s).ok())
-            .ok_or(())
+            .find(|attr| attr.name_code == "rodzaj_opakowania")
+            .context("no PackedAs data")?;
+
+        PackedAs::try_from(attr.value_code.as_str())
     }
 }
 
 impl TryFrom<Item> for Beer {
-    type Error = ();
+    type Error = anyhow::Error;
 
-    fn try_from(item: Item) -> Result<Beer, ()> {
-        Ok(Beer::builder()
+    fn try_from(item: Item) -> Result<Beer> {
+        Beer::builder()
             .style(item.style())
             .abv(item.abv())
             .packed_as(item.packed_as()?)
             .name(item.name)
             .url(item.url)
             .manufacturer(item.manufacturer.name)
-            .build())
+            .build()
     }
 }
 
