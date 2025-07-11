@@ -16,7 +16,8 @@ impl TryFrom<String> for PackedAs {
             "zestaw" => Err(()),
             "0" => Err(()),
             _ => {
-                panic!("Unknwon package type: {s}")
+                log::error!("Unknown package type: {s}");
+                Err(())
             }
         }
     }

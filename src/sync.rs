@@ -15,9 +15,9 @@ impl Sync {
         let mut ciders = OneMoreBeer::load_category(&client, Category::Cider).await?;
         let mut meads = OneMoreBeer::load_category(&client, Category::Mead).await?;
 
-        Untappd::load_scores(&client, &mut beers).await;
-        Untappd::load_scores(&client, &mut ciders).await;
-        Untappd::load_scores(&client, &mut meads).await;
+        Untappd::load_scores(&client, &mut beers).await?;
+        Untappd::load_scores(&client, &mut ciders).await?;
+        Untappd::load_scores(&client, &mut meads).await?;
 
         let db = Database {
             beers,

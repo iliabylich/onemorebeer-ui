@@ -16,7 +16,7 @@ impl Web {
             .route("/", get(root))
             .route("/beers.json", get(beers));
 
-        let port = Config::global()?.listen_on;
+        let port = Config::global().listen_on;
         let listener = TcpListener::bind(("127.0.0.1", port))
             .await
             .context("failed to bind")?;

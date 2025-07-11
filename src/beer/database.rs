@@ -20,8 +20,7 @@ impl Database {
     }
 
     pub(crate) async fn read() -> Result<Option<Self>> {
-        let json = Cache::read(CACHE_NS, CACHE_KEY).await?;
-        if let Some(json) = json {
+        if let Some(json) = Cache::read(CACHE_NS, CACHE_KEY).await {
             Ok(Some(serde_json::from_str(&json)?))
         } else {
             Ok(None)

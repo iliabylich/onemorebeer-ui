@@ -33,7 +33,7 @@ impl Config {
         CONFIG.set(config).context("Config has already been loaded")
     }
 
-    pub(crate) fn global() -> Result<&'static Config> {
-        CONFIG.get().context("Config is not loaded")
+    pub(crate) fn global() -> &'static Config {
+        CONFIG.get().expect("Config is not loaded")
     }
 }
