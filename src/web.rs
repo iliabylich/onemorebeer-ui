@@ -44,7 +44,7 @@ async fn root() -> impl IntoResponse {
 
     Html(rendered.unwrap_or_else(|err| {
         log::error!("{err:?}");
-        format!("internal server error")
+        "internal server error".to_string()
     }))
 }
 
