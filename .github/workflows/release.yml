@@ -24,7 +24,7 @@ jobs:
       - run: sudo ln -s /bin/x86_64-linux-musl-gcc /bin/musl-gcc
 
       - name: install cargo-deb
-        uses: taiki-e/install-action@v2
+        uses: taiki-e/install-action@v2.85.3
         with:
           tool: cargo-deb
 
