@@ -1,12 +1,34 @@
+monorepo_root = true
+
+[monorepo]
+config_roots = [".github"]
+
+[tools]
+cargo-binstall = "latest"
+
+[settings]
+cargo.binstall_quickinstall = true
+cargo.binstall_only = true
+
+[task_config]
+shell = "bash -euo pipefail -c"
+
 [tasks.sync]
 run = 'cargo run -- --sync'
 
 [tasks.web]
 run = 'cargo run -- --web'
 
-[tasks.build-deb]
+[tasks.release]
+run = 'cargo build --release --target=x86_64-unknown-linux-musl'
+
+[tasks."cargo:outdated"]
+hide = true
+tools = { "cargo:cargo-outdated" = "latest" }
+run = "cargo outdated"
+
+[tasks.outdated]
 run = [
-    'cargo build --target=x86_64-unknown-linux-musl --release',
-    'strip target/x86_64-unknown-linux-musl/release/onemorebeer-ui',
-    'cargo deb --deb-revision="$(date +%s)" --target=x86_64-unknown-linux-musl',
+    { task = "cargo:outdated" },
+    { task = "//.github:outdated" },
 ]
